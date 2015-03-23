@@ -4,14 +4,14 @@ angular.module('ngSwipeDetector', []).directive('ngSwipeDetector',  function () 
             ngSwipe: '&',
             ngHorizontalSensibility: '=',
             ngVerticalSensibility: '='
-        }
+        },
         link: function ($scope, element, attrs, controller) {
-            var swipeCallback = $scope.ngSwipe,
+            var swipeCallback = $scope.ngSwipe;
             console.log($scope);
             
             var Touch = {
-                horizontal_sensitivity: 80,
-                vertical_sensitivity: 6,
+                horizontal_sensitivity: $scope.ngHorizontalSensibility? $scope.ngHorizontalSensibility: 80,
+                vertical_sensitivity: $scope.ngVerticalSensibility? $scope.ngVerticalSensibility: 5,
                 touchDX: 0,
                 touchDY: 0,
                 touchStartX: 0,
@@ -24,7 +24,7 @@ angular.module('ngSwipeDetector', []).directive('ngSwipeDetector',  function () 
                         self.handleStart(event, element);
                     })
 
-                    element.addEventListener("touchmove", (event) {
+                    element.addEventListener("touchmove", function (event) {
                         self.handleMove(event, element);
                     })
 
@@ -34,17 +34,19 @@ angular.module('ngSwipeDetector', []).directive('ngSwipeDetector',  function () 
                 },
                      
                 emitSlideLeft: function () {
-                    if (swipeCallback)
-                        swipeCallback direction: 'left';
+                    if (swipeCallback) {
+                        swipeCallback({direction: 'left'})
+                    }
                 },
 
                 emitSlideRight: function () {
-                    if (swipeCallback) 
-                        swipeCallback direction: 'right';
+                    if (swipeCallback) {
+                        swipeCallback({direction: 'right'})
+                    }
                 },
 
                 handleStart: function (event, elem) {
-                    if (event.touches.length is 1) {
+                    if (event.touches.length === 1) {
                           this.touchDX = 0;
                           this.touchDY = 0;
 
@@ -55,35 +57,35 @@ angular.module('ngSwipeDetector', []).directive('ngSwipeDetector',  function () 
                  
                 handleMove: function (event, elem) {
                     if (event.touches.length > 1) {
-                        @cancelTouch(elem);
+                        this.cancelTouch(elem);
                         return false
                     }
                  
-                    this.touchDX = event.touches[0].pageX - @touchStartX;
-                    this.touchDY = event.touches[0].pageY - @touchStartY;
+                    this.touchDX = event.touches[0].pageX - this.touchStartX;
+                    this.touchDY = event.touches[0].pageY - this.touchStartY;
                 },
              
                 handleEnd: function (event, elem) {
-                    dx = Math.abs(@touchDX);
-                    dy = Math.abs(@touchDY);
+                    dx = Math.abs(this.touchDX);
+                    dy = Math.abs(this.touchDY);
              
-                    if (dx > @horizontal_sensitivity) and (dy < (dx * 2 / 3)) {
+                    if ((dx > this.horizontal_sensitivity) && (dy < (dx * 2 / 3))) {
                         if (this.touchDX > 0) 
-                            @emitSlideRight();
+                            this.emitSlideRight();
                         else 
-                            @emitSlideLeft();
+                            this.emitSlideLeft();
                     }
                     
                     this.cancelTouch(event, elem);
                 },
              
                 cancelTouch: function (event, elem) {
-                    elem.removeEventListener('touchmove', @handleTouchMove, false);
-                    elem.removeEventListener('touchend', @handleTouchEnd, false);
+                    elem.removeEventListener('touchmove', this.handleTouchMove, false);
+                    elem.removeEventListener('touchend', this.handleTouchEnd, false);
                 }
             }
 
-            Touch.bind element[0]
+            Touch.bind(element[0]);
         }
     }
 })
